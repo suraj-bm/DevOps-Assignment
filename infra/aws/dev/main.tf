@@ -120,12 +120,19 @@ resource "aws_instance" "app_server" {
 
   user_data = <<-EOF
               #!/bin/bash
-              yum update -y
-              yum install docker -y
-              systemctl start docker
-              systemctl enable docker
+                yum update -y
+                yum install docker -y
+                systemctl start docker
+                systemctl enable docker
 
-              docker run -d -p 80:80 --restart=always nginx
+                curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+                chmod +x /usr/local/bin/docker-compose
+
+                cd /home/ec2-user
+                git clone https://github.com/suraj-bm/DevOps-Assignment.git app
+                cd app
+
+                docker-compose up -d --build
               EOF
 
   tags = {
