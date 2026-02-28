@@ -32,7 +32,7 @@ Nginx (Reverse Proxy)
       ↓
  ┌───────────────┬───────────────┐
  │               │               │
-Frontend       Backend
+Frontend       Backend          ....
 (Next.js)      (FastAPI)
 </pre>
 
