@@ -1,125 +1,315 @@
-# DevOps Assignment
+🚀 DevOps Deployment Documentation
+📌 Project Overview
 
-This project consists of a FastAPI backend and a Next.js frontend that communicates with the backend.
+This project demonstrates the deployment of a full-stack containerized web application on AWS using Infrastructure as Code and CI/CD automation.
 
-## Project Structure
+The solution includes:
 
-```
-.
-├── backend/               # FastAPI backend
-│   ├── app/
-│   │   └── main.py       # Main FastAPI application
-│   └── requirements.txt    # Python dependencies
-└── frontend/              # Next.js frontend
-    ├── pages/
-    │   └── index.js     # Main page
-    ├── public/            # Static files
-    └── package.json       # Node.js dependencies
-```
+Frontend: Next.js
 
-## Prerequisites
+Backend: FastAPI
 
-- Python 3.8+
-- Node.js 16+
-- npm or yarn
+Reverse Proxy: Nginx
 
-## Backend Setup
+Containerization: Docker & Docker Compose
 
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
+Infrastructure Provisioning: Terraform
 
-2. Create a virtual environment (recommended):
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: .\venv\Scripts\activate
-   ```
+CI/CD Pipeline: GitHub Actions
 
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+Cloud Provider: AWS (ap-south-1)
 
-4. Run the FastAPI server:
-   ```bash
-   uvicorn app.main:app --reload --port 8000
-   ```
+The goal was to design a secure, reproducible, and automated deployment architecture while maintaining simplicity and cost efficiency.
 
-   The backend will be available at `http://localhost:8000`
+🏗 Architecture Overview
+High-Level Architecture
 
-## Frontend Setup
+User Browser
+→ Internet
+→ EC2 Public IP
+→ Nginx (Reverse Proxy)
+→ Frontend Container
+→ Backend Container
 
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
+AWS Infrastructure Components
 
-2. Install dependencies:
-   ```bash
-   npm install
-   # or
-   yarn
-   ```
+Custom VPC (10.0.0.0/16)
 
-3. Configure the backend URL (if different from default):
-   - Open `.env.local`
-   - Update `NEXT_PUBLIC_API_URL` with your backend URL
-   - Example: `NEXT_PUBLIC_API_URL=https://your-backend-url.com`
+Public Subnet (10.0.1.0/24)
 
-4. Run the development server:
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   ```
+Internet Gateway
 
-   The frontend will be available at `http://localhost:3000`
+Route Table (0.0.0.0/0 → IGW)
 
-## Changing the Backend URL
+Security Group
 
-To change the backend URL that the frontend connects to:
+EC2 Instance (Docker Host)
 
-1. Open the `.env.local` file in the frontend directory
-2. Update the `NEXT_PUBLIC_API_URL` variable with your new backend URL
-3. Save the file
-4. Restart the Next.js development server for changes to take effect
+Container Layer
 
-Example:
-```
-NEXT_PUBLIC_API_URL=https://your-new-backend-url.com
-```
+Inside EC2:
 
-## For deployment:
-   ```bash
-   npm run build
-   # or
-   yarn build
-   ```
+Nginx listens on port 80
 
-   AND
+Routes / to frontend (port 3000)
 
-   ```bash
-   npm run start
-   # or
-   yarn start
-   ```
+Routes /api to backend (port 8000)
 
-   The frontend will be available at `http://localhost:3000`
+Containers communicate via Docker bridge network
 
-## Testing the Integration
+🌍 Cloud & Region Choice
+Cloud Provider: AWS
 
-1. Ensure both backend and frontend servers are running
-2. Open the frontend in your browser (default: http://localhost:3000)
-3. If everything is working correctly, you should see:
-   - A status message indicating the backend is connected
-   - The message from the backend: "You've successfully integrated the backend!"
-   - The current backend URL being used
+Reasons for selecting AWS:
 
-## API Endpoints
+Strong Terraform integration
 
-- `GET /api/health`: Health check endpoint
-  - Returns: `{"status": "healthy", "message": "Backend is running successfully"}`
+Mature networking capabilities
 
-- `GET /api/message`: Get the integration message
-  - Returns: `{"message": "You've successfully integrated the backend!"}`
+Industry-standard IAM model
+
+Widely adopted cloud platform
+
+Region: ap-south-1 (Mumbai)
+
+Reasons:
+
+Lower latency for Indian users
+
+Cost efficiency
+
+Free-tier eligible instance types available
+
+🧱 Infrastructure Design Decisions
+1️⃣ Custom VPC
+
+Instead of using the default VPC, a custom VPC was created to:
+
+Demonstrate networking knowledge
+
+Control CIDR blocks
+
+Explicitly configure routing
+
+2️⃣ Public Subnet
+
+A public subnet was configured with:
+
+Auto-assigned public IP
+
+Route to Internet Gateway
+
+This allows:
+
+Application access from the internet
+
+Outbound package downloads
+
+3️⃣ Security Group
+
+Inbound rules:
+
+HTTP (80) – Public access
+
+SSH (22) – Key-based authentication
+
+Outbound:
+
+Allow all traffic
+
+4️⃣ EC2 Instead of Kubernetes
+
+Chosen for:
+
+Simplicity
+
+Lower operational overhead
+
+Cost efficiency
+
+Suitable for small-scale workloads
+
+5️⃣ Docker-Based Deployment
+
+Docker ensures:
+
+Environment consistency
+
+Dependency isolation
+
+Easy reproducibility
+
+6️⃣ Nginx Reverse Proxy
+
+Used to:
+
+Route traffic cleanly
+
+Separate frontend and backend
+
+Enable future scaling flexibility
+
+🚀 Deployment Workflow
+Infrastructure Provisioning
+
+Terraform Commands:
+
+terraform init
+
+terraform plan
+
+terraform apply
+
+Terraform provisions:
+
+VPC
+
+Subnet
+
+Route table
+
+Internet Gateway
+
+Security Group
+
+EC2 Instance
+
+EC2 Bootstrap (User Data)
+
+On launch:
+
+Docker installed
+
+Docker Compose installed
+
+Git repository cloned
+
+Containers built and started
+
+🔁 CI/CD Pipeline
+
+CI/CD implemented using GitHub Actions.
+
+Flow:
+
+Push to main branch
+→ GitHub Actions triggered
+→ SSH into EC2
+→ Pull latest code
+→ Rebuild Docker images
+→ Restart containers
+
+Benefits:
+
+Eliminates manual deployment
+
+Ensures consistent releases
+
+Reduces human error
+
+📈 Scaling Strategy
+Current Setup
+
+Single EC2 instance
+
+Docker restart policy for container crashes
+
+No auto scaling
+
+If Traffic Increases
+
+Possible improvements:
+
+Add Application Load Balancer
+
+Use Auto Scaling Group
+
+Separate backend into private subnet
+
+Use ECS or Kubernetes
+
+Host frontend on S3 + CloudFront
+
+⚠ Failure Handling
+Current Failure Domain
+
+If container crashes → Docker restarts it
+
+If EC2 fails → Application downtime
+
+Improvements for High Availability
+
+Multi-AZ deployment
+
+Auto Scaling
+
+Load balancing
+
+Health checks
+
+⚖ Tradeoffs & Limitations
+Limitations
+
+Single point of failure (EC2)
+
+No load balancer
+
+No HTTPS/ACM
+
+No centralized logging
+
+No monitoring stack
+
+No blue-green deployment
+
+Tradeoffs
+
+Chose:
+
+Simplicity
+
+Cost efficiency
+
+Faster deployment
+
+Over:
+
+High availability
+
+Complex orchestration
+
+🚀 Future Enhancements
+
+Implement HTTPS with ACM
+
+Introduce Load Balancer
+
+Move backend to private subnet
+
+Use RDS for database
+
+Implement monitoring (CloudWatch)
+
+Add container registry (ECR)
+
+Implement Blue-Green deployment strategy
+
+Multi-region failover
+
+🎯 Conclusion
+
+This project demonstrates:
+
+Infrastructure as Code using Terraform
+
+Custom AWS networking configuration
+
+Containerized full-stack deployment
+
+Reverse proxy architecture
+
+Automated CI/CD pipeline
+
+Thoughtful infrastructure tradeoffs
+
+The system is simple, reproducible, and production-structured, with clear pathways for scaling and resilience improvements.
