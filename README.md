@@ -1,315 +1,180 @@
-🚀 DevOps Deployment Documentation
-📌 Project Overview
+<h1 align="center">🚀 DevOps Full-Stack Deployment on AWS</h1>
 
-This project demonstrates the deployment of a full-stack containerized web application on AWS using Infrastructure as Code and CI/CD automation.
+<h3 align="center">
+Containerized Web Application | Terraform | Docker | CI/CD | AWS
+</h3>
 
-The solution includes:
+---
 
-Frontend: Next.js
+<h2 align="left">📌 Project Overview</h2>
 
-Backend: FastAPI
+This project demonstrates deployment of a full-stack containerized application on AWS using Infrastructure as Code and CI/CD automation.
 
-Reverse Proxy: Nginx
+<b>Frontend:</b> Next.js <br>
+<b>Backend:</b> FastAPI <br>
+<b>Reverse Proxy:</b> Nginx <br>
+<b>Infrastructure:</b> Terraform <br>
+<b>CI/CD:</b> GitHub Actions <br>
+<b>Cloud Provider:</b> AWS (ap-south-1)
 
-Containerization: Docker & Docker Compose
+---
 
-Infrastructure Provisioning: Terraform
+<h2 align="left">🏗 Architecture</h2>
 
-CI/CD Pipeline: GitHub Actions
-
-Cloud Provider: AWS (ap-south-1)
-
-The goal was to design a secure, reproducible, and automated deployment architecture while maintaining simplicity and cost efficiency.
-
-🏗 Architecture Overview
-High-Level Architecture
-
+<pre>
 User Browser
-→ Internet
-→ EC2 Public IP
-→ Nginx (Reverse Proxy)
-→ Frontend Container
-→ Backend Container
+      ↓
+Internet
+      ↓
+EC2 Public IP
+      ↓
+Nginx (Reverse Proxy)
+      ↓
+ ┌───────────────┬───────────────┐
+ │               │               │
+Frontend       Backend
+(Next.js)      (FastAPI)
+</pre>
 
-AWS Infrastructure Components
+---
 
-Custom VPC (10.0.0.0/16)
+<h2 align="left">☁️ Cloud & Region Choice</h2>
 
-Public Subnet (10.0.1.0/24)
+<b>AWS</b> was selected due to:
 
-Internet Gateway
+- Strong Terraform integration
+- Mature networking model
+- Industry adoption
+- Cost-effective free tier
 
-Route Table (0.0.0.0/0 → IGW)
+<b>Region:</b> ap-south-1 (Mumbai)
 
-Security Group
+- Low latency for India
+- Free-tier eligible instance types
+- Cost efficiency
 
-EC2 Instance (Docker Host)
+---
 
-Container Layer
+<h2 align="left">🧱 Infrastructure Decisions</h2>
 
-Inside EC2:
+<b>Custom VPC</b>
+- Defined CIDR: 10.0.0.0/16
+- Public Subnet: 10.0.1.0/24
+- Internet Gateway
+- Route Table (0.0.0.0/0 → IGW)
 
-Nginx listens on port 80
+<b>Security Group</b>
+- HTTP (80)
+- SSH (22 - key-based authentication)
 
-Routes / to frontend (port 3000)
+<b>EC2 Instance</b>
+- Runs Docker & Docker Compose
+- Hosts all application containers
 
-Routes /api to backend (port 8000)
+<b>Why EC2 over Kubernetes?</b>
+- Lower complexity
+- Faster deployment
+- Cost-efficient
+- Suitable for small-scale workloads
 
-Containers communicate via Docker bridge network
+---
 
-🌍 Cloud & Region Choice
-Cloud Provider: AWS
+<h2 align="left">🚀 Deployment Flow</h2>
 
-Reasons for selecting AWS:
+<b>Infrastructure Provisioning:</b>
 
-Strong Terraform integration
-
-Mature networking capabilities
-
-Industry-standard IAM model
-
-Widely adopted cloud platform
-
-Region: ap-south-1 (Mumbai)
-
-Reasons:
-
-Lower latency for Indian users
-
-Cost efficiency
-
-Free-tier eligible instance types available
-
-🧱 Infrastructure Design Decisions
-1️⃣ Custom VPC
-
-Instead of using the default VPC, a custom VPC was created to:
-
-Demonstrate networking knowledge
-
-Control CIDR blocks
-
-Explicitly configure routing
-
-2️⃣ Public Subnet
-
-A public subnet was configured with:
-
-Auto-assigned public IP
-
-Route to Internet Gateway
-
-This allows:
-
-Application access from the internet
-
-Outbound package downloads
-
-3️⃣ Security Group
-
-Inbound rules:
-
-HTTP (80) – Public access
-
-SSH (22) – Key-based authentication
-
-Outbound:
-
-Allow all traffic
-
-4️⃣ EC2 Instead of Kubernetes
-
-Chosen for:
-
-Simplicity
-
-Lower operational overhead
-
-Cost efficiency
-
-Suitable for small-scale workloads
-
-5️⃣ Docker-Based Deployment
-
-Docker ensures:
-
-Environment consistency
-
-Dependency isolation
-
-Easy reproducibility
-
-6️⃣ Nginx Reverse Proxy
-
-Used to:
-
-Route traffic cleanly
-
-Separate frontend and backend
-
-Enable future scaling flexibility
-
-🚀 Deployment Workflow
-Infrastructure Provisioning
-
-Terraform Commands:
-
+<pre>
 terraform init
-
 terraform plan
-
 terraform apply
+</pre>
 
-Terraform provisions:
+<b>Application Deployment:</b>
 
-VPC
-
-Subnet
-
-Route table
-
-Internet Gateway
-
-Security Group
-
-EC2 Instance
-
-EC2 Bootstrap (User Data)
-
-On launch:
-
+<pre>
 Docker installed
+Repository cloned
+Containers built
+Application exposed on port 80
+</pre>
 
-Docker Compose installed
+---
 
-Git repository cloned
+<h2 align="left">🔁 CI/CD Pipeline</h2>
 
-Containers built and started
+GitHub Actions automates deployment.
 
-🔁 CI/CD Pipeline
-
-CI/CD implemented using GitHub Actions.
-
-Flow:
-
+<pre>
 Push to main branch
-→ GitHub Actions triggered
-→ SSH into EC2
-→ Pull latest code
-→ Rebuild Docker images
-→ Restart containers
+        ↓
+GitHub Actions triggered
+        ↓
+SSH into EC2
+        ↓
+Pull latest code
+        ↓
+Rebuild Docker images
+        ↓
+Restart containers
+</pre>
 
 Benefits:
+- Eliminates manual deployment
+- Ensures consistency
+- Reduces downtime
 
-Eliminates manual deployment
+---
 
-Ensures consistent releases
+<h2 align="left">📈 Scaling & Failure Handling</h2>
 
-Reduces human error
+<b>Current Setup:</b>
+- Single EC2 instance
+- Docker restart policy enabled
+- No load balancer
 
-📈 Scaling Strategy
-Current Setup
+<b>Failure Handling:</b>
+- Container crash → Auto-restart
+- EC2 failure → Downtime
 
-Single EC2 instance
+<b>Future Scaling:</b>
+- Add Application Load Balancer
+- Auto Scaling Group
+- Move backend to private subnet
+- Use ECS or Kubernetes
+- Host frontend on S3 + CloudFront
 
-Docker restart policy for container crashes
+---
 
-No auto scaling
+<h2 align="left">⚖ Tradeoffs & Limitations</h2>
 
-If Traffic Increases
+- Single point of failure
+- No HTTPS (ACM not configured)
+- No monitoring stack
+- No blue-green deployment
+- No centralized logging
 
-Possible improvements:
+Tradeoff: Prioritized simplicity and cost efficiency over high availability.
 
-Add Application Load Balancer
+---
 
-Use Auto Scaling Group
+<h2 align="left">🚀 Future Improvements</h2>
 
-Separate backend into private subnet
+- HTTPS with ACM
+- Load Balancer integration
+- Auto Scaling
+- Monitoring with CloudWatch
+- Docker image registry (ECR)
+- Multi-region deployment
 
-Use ECS or Kubernetes
+---
 
-Host frontend on S3 + CloudFront
+<h2 align="center">🎯 Project Outcome</h2>
 
-⚠ Failure Handling
-Current Failure Domain
+✔ Infrastructure as Code  
+✔ Custom AWS networking  
+✔ Containerized architecture  
+✔ Reverse proxy configuration  
+✔ Automated CI/CD pipeline  
+✔ Scalable future-ready design  
 
-If container crashes → Docker restarts it
-
-If EC2 fails → Application downtime
-
-Improvements for High Availability
-
-Multi-AZ deployment
-
-Auto Scaling
-
-Load balancing
-
-Health checks
-
-⚖ Tradeoffs & Limitations
-Limitations
-
-Single point of failure (EC2)
-
-No load balancer
-
-No HTTPS/ACM
-
-No centralized logging
-
-No monitoring stack
-
-No blue-green deployment
-
-Tradeoffs
-
-Chose:
-
-Simplicity
-
-Cost efficiency
-
-Faster deployment
-
-Over:
-
-High availability
-
-Complex orchestration
-
-🚀 Future Enhancements
-
-Implement HTTPS with ACM
-
-Introduce Load Balancer
-
-Move backend to private subnet
-
-Use RDS for database
-
-Implement monitoring (CloudWatch)
-
-Add container registry (ECR)
-
-Implement Blue-Green deployment strategy
-
-Multi-region failover
-
-🎯 Conclusion
-
-This project demonstrates:
-
-Infrastructure as Code using Terraform
-
-Custom AWS networking configuration
-
-Containerized full-stack deployment
-
-Reverse proxy architecture
-
-Automated CI/CD pipeline
-
-Thoughtful infrastructure tradeoffs
-
-The system is simple, reproducible, and production-structured, with clear pathways for scaling and resilience improvements.
+---
