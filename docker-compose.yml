@@ -12,8 +12,6 @@ services:
     build: ./frontend
     container_name: frontend
     restart: always
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost/api
     ports:
       - "3000:3000"
 
